@@ -1,0 +1,10 @@
+{
+  "name": "maabarot-weather",
+  "version": "1.0.0",
+  "description": "Modern weather dashboard for Ma'abarot meteorological station",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}

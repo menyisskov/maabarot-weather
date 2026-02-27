@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>נתוני חיישנים - תחנה מטאורולוגית מעברות</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="sensors.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="station-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v10m0 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+              <path d="M8 2h8M8 6h8"/>
+            </svg>
+          </div>
+          <div>
+            <h1>נתוני חיישנים - מעברות</h1>
+            <p class="subtitle">All Sensor Data &bull; Davis Vantage Pro</p>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <a href="/" class="nav-link">ראשי</a>
+          <a href="/sensors.html" class="nav-link active">חיישנים</a>
+          <a href="/map.html" class="nav-link">מפה</a>
+          <a href="/rain.html" class="nav-link">גשם</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Station info bar -->
+      <div class="station-bar" id="stationBar">
+        <div class="station-bar-item">
+          <span class="sbi-label">תחנה</span>
+          <span class="sbi-value" id="sStationName">--</span>
+        </div>
+        <div class="station-bar-item">
+          <span class="sbi-label">תאריך</span>
+          <span class="sbi-value" id="sDate">--</span>
+        </div>
+        <div class="station-bar-item">
+          <span class="sbi-label">שעה</span>
+          <span class="sbi-value" id="sTime">--</span>
+        </div>
+        <div class="station-bar-item">
+          <span class="sbi-label">זריחה</span>
+          <span class="sbi-value" id="sSunrise">--</span>
+        </div>
+        <div class="station-bar-item">
+          <span class="sbi-label">שקיעה</span>
+          <span class="sbi-value" id="sSunset">--</span>
+        </div>
+      </div>
+
+      <!-- Temperature Section -->
+      <section class="sensor-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+          </svg>
+          טמפרטורה
+        </h2>
+        <div class="sensor-grid">
+          <!-- Outside Temp -->
+          <div class="sensor-card sensor-card-hero">
+            <div class="sensor-card-label">טמפרטורה חיצונית</div>
+            <div class="sensor-hero-row">
+              <div class="sensor-hero-value" id="outsideTemp">--</div>
+              <div class="sensor-hero-unit">°C</div>
+              <div class="sensor-thermometer" id="outsideTempBar">
+                <div class="thermo-fill"></div>
+                <div class="thermo-markers">
+                  <span class="thermo-marker thermo-high" id="outsideTempHighMark"></span>
+                  <span class="thermo-marker thermo-low" id="outsideTempLowMark"></span>
+                </div>
+              </div>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-low">
+                <svg viewBox="0 0 16 16" width="12" height="12"><path d="M8 12l-4-4h8z" fill="currentColor"/></svg>
+                <span id="outsideTempLow">--</span>
+                <span class="range-time" id="outsideTempLowTime"></span>
+              </div>
+              <div class="range-item range-high">
+                <svg viewBox="0 0 16 16" width="12" height="12"><path d="M8 4l4 4H4z" fill="currentColor"/></svg>
+                <span id="outsideTempHigh">--</span>
+                <span class="range-time" id="outsideTempHighTime"></span>
+              </div>
+            </div>
+            <div class="sensor-records">
+              <div class="record">
+                <span class="record-label">חודשי</span>
+                <span class="record-range"><span id="outsideTempMonthLow">--</span> ~ <span id="outsideTempMonthHigh">--</span></span>
+              </div>
+              <div class="record">
+                <span class="record-label">שנתי</span>
+                <span class="record-range"><span id="outsideTempYearLow">--</span> ~ <span id="outsideTempYearHigh">--</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inside Temp -->
+          <div class="sensor-card">
+            <div class="sensor-card-label">טמפרטורה פנימית</div>
+            <div class="sensor-value-row">
+              <span class="sensor-value" id="insideTemp">--</span>
+              <span class="sensor-unit">°C</span>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-low">
+                <span id="insideTempLow">--</span>
+              </div>
+              <div class="range-item range-high">
+                <span id="insideTempHigh">--</span>
+              </div>
+            </div>
+            <div class="sensor-records">
+              <div class="record">
+                <span class="record-label">חודשי</span>
+                <span class="record-range"><span id="insideTempMonthLow">--</span> ~ <span id="insideTempMonthHigh">--</span></span>
+              </div>
+              <div class="record">
+                <span class="record-label">שנתי</span>
+                <span class="record-range"><span id="insideTempYearLow">--</span> ~ <span id="insideTempYearHigh">--</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dew Point -->
+          <div class="sensor-card">
+            <div class="sensor-card-label">נקודת טל</div>
+            <div class="sensor-value-row">
+              <span class="sensor-value" id="dewPoint">--</span>
+              <span class="sensor-unit">°C</span>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-low"><span id="dewPointLow">--</span></div>
+              <div class="range-item range-high"><span id="dewPointHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record">
+                <span class="record-label">חודשי</span>
+                <span class="record-range"><span id="dewPointMonthLow">--</span> ~ <span id="dewPointMonthHigh">--</span></span>
+              </div>
+              <div class="record">
+                <span class="record-label">שנתי</span>
+                <span class="record-range"><span id="dewPointYearLow">--</span> ~ <span id="dewPointYearHigh">--</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Heat Index -->
+          <div class="sensor-card">
+            <div class="sensor-card-label">עומס חום</div>
+            <div class="sensor-value-row">
+              <span class="sensor-value" id="heatIndex">--</span>
+              <span class="sensor-unit">°C</span>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-high"><span id="heatIndexHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי מקס</span><span id="heatIndexMonth">--</span></div>
+              <div class="record"><span class="record-label">שנתי מקס</span><span id="heatIndexYear">--</span></div>
+            </div>
+          </div>
+
+          <!-- Wind Chill -->
+          <div class="sensor-card">
+            <div class="sensor-card-label">Wind Chill</div>
+            <div class="sensor-value-row">
+              <span class="sensor-value" id="windChill">--</span>
+              <span class="sensor-unit">°C</span>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-low"><span id="windChillLow">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי מיני</span><span id="windChillMonth">--</span></div>
+              <div class="record"><span class="record-label">שנתי מיני</span><span id="windChillYear">--</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Humidity Section -->
+      <section class="sensor-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+          לחות
+        </h2>
+        <div class="sensor-grid">
+          <div class="sensor-card sensor-card-hero">
+            <div class="sensor-card-label">לחות חיצונית</div>
+            <div class="sensor-hero-row">
+              <div class="sensor-hero-value" id="outsideHum">--</div>
+              <div class="sensor-hero-unit">%</div>
+              <div class="humidity-bar-container">
+                <div class="humidity-bar" id="outsideHumBar"></div>
+              </div>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-low"><span id="outsideHumLow">--</span></div>
+              <div class="range-item range-high"><span id="outsideHumHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי</span><span class="record-range"><span id="outsideHumMonthLow">--</span> ~ <span id="outsideHumMonthHigh">--</span></span></div>
+              <div class="record"><span class="record-label">שנתי</span><span class="record-range"><span id="outsideHumYearLow">--</span> ~ <span id="outsideHumYearHigh">--</span></span></div>
+            </div>
+          </div>
+
+          <div class="sensor-card">
+            <div class="sensor-card-label">לחות פנימית</div>
+            <div class="sensor-value-row">
+              <span class="sensor-value" id="insideHum">--</span>
+              <span class="sensor-unit">%</span>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-low"><span id="insideHumLow">--</span></div>
+              <div class="range-item range-high"><span id="insideHumHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי</span><span class="record-range"><span id="insideHumMonthLow">--</span> ~ <span id="insideHumMonthHigh">--</span></span></div>
+              <div class="record"><span class="record-label">שנתי</span><span class="record-range"><span id="insideHumYearLow">--</span> ~ <span id="insideHumYearHigh">--</span></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Barometer Section -->
+      <section class="sensor-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+          לחץ ברומטרי
+        </h2>
+        <div class="sensor-grid">
+          <div class="sensor-card sensor-card-hero">
+            <div class="sensor-card-label">ברומטר</div>
+            <div class="sensor-hero-row">
+              <div class="sensor-hero-value" id="barometer">--</div>
+              <div class="sensor-hero-unit">mb</div>
+            </div>
+            <div class="baro-trend" id="baroTrend">--</div>
+            <div class="sensor-range">
+              <div class="range-item range-low"><span id="baroLow">--</span></div>
+              <div class="range-item range-high"><span id="baroHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי</span><span class="record-range"><span id="baroMonthLow">--</span> ~ <span id="baroMonthHigh">--</span></span></div>
+              <div class="record"><span class="record-label">שנתי</span><span class="record-range"><span id="baroYearLow">--</span> ~ <span id="baroYearHigh">--</span></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Wind Section -->
+      <section class="sensor-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+          </svg>
+          רוח
+        </h2>
+        <div class="sensor-grid">
+          <div class="sensor-card sensor-card-hero">
+            <div class="sensor-card-label">מהירות רוח</div>
+            <div class="sensor-hero-row">
+              <div class="sensor-hero-value" id="windSpeed">--</div>
+              <div class="sensor-hero-unit">km/h</div>
+            </div>
+            <div class="wind-avg">ממוצע 10 דקות: <strong id="windAvg">--</strong> km/h</div>
+            <div class="sensor-range">
+              <div class="range-item range-high"><span id="windHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי מקס</span><span id="windMonthHigh">--</span></div>
+              <div class="record"><span class="record-label">שנתי מקס</span><span id="windYearHigh">--</span></div>
+            </div>
+          </div>
+
+          <div class="sensor-card">
+            <div class="sensor-card-label">כיוון רוח</div>
+            <div class="wind-compass-large">
+              <div class="compass-ring-large">
+                <span class="cl n">N</span><span class="cl e">E</span>
+                <span class="cl s">S</span><span class="cl w">W</span>
+                <div class="compass-needle-large" id="windNeedleLarge"></div>
+              </div>
+            </div>
+            <div class="wind-direction-text">
+              <span id="windDirDeg">--</span>° &mdash; <span id="windDirSector">--</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rain Section -->
+      <section class="sensor-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+          גשם
+        </h2>
+        <div class="sensor-grid rain-grid">
+          <div class="sensor-card rain-hero">
+            <div class="sensor-card-label">גשם שנתי מצטבר</div>
+            <div class="rain-total" id="rainTotal">--</div>
+            <div class="rain-total-unit">מ"מ</div>
+            <div class="rain-breakdown">
+              <div class="rain-item">
+                <div class="rain-item-value" id="rainDaily">--</div>
+                <div class="rain-item-label">היום</div>
+              </div>
+              <div class="rain-item">
+                <div class="rain-item-value" id="rainMonthly">--</div>
+                <div class="rain-item-label">החודש</div>
+              </div>
+              <div class="rain-item">
+                <div class="rain-item-value" id="rainStorm">--</div>
+                <div class="rain-item-label">פרק גשם</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sensor-card">
+            <div class="sensor-card-label">עוצמת גשם</div>
+            <div class="sensor-value-row">
+              <span class="sensor-value" id="rainRate">--</span>
+              <span class="sensor-unit">mm/hr</span>
+            </div>
+            <div class="sensor-range">
+              <div class="range-item range-high"><span id="rainRateHigh">--</span></div>
+            </div>
+            <div class="sensor-records">
+              <div class="record"><span class="record-label">חודשי מקס</span><span id="rainRateMonth">--</span></div>
+              <div class="record"><span class="record-label">שנתי מקס</span><span id="rainRateYear">--</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>תחנה מטאורולוגית מעברות &bull; Ma'abarot Meteorological Station</p>
+      <p class="footer-contact"><a href="mailto:uri_sh@maabarot.org.il">צור קשר</a></p>
+    </footer>
+  </div>
+
+  <script src="sensors.js"></script>
+</body>
+</html>

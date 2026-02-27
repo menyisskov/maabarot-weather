@@ -1,0 +1,458 @@
+/* ===== Sensors Page Styles ===== */
+
+/* Station Info Bar */
+.station-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.station-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sbi-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sbi-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  direction: ltr;
+  text-align: right;
+}
+
+/* Sensor Sections */
+.sensor-section {
+  margin-bottom: 0.5rem;
+}
+
+.sensor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.rain-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Sensor Cards */
+.sensor-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.sensor-card:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: var(--shadow);
+}
+
+.sensor-card-hero {
+  grid-column: span 2;
+  background: linear-gradient(135deg, var(--bg-card) 0%, #1a2d45 100%);
+  border-color: rgba(56, 189, 248, 0.15);
+}
+
+.sensor-card-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+/* Hero value row */
+.sensor-hero-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sensor-hero-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+  direction: ltr;
+  text-align: right;
+}
+
+.sensor-hero-unit {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  direction: ltr;
+}
+
+/* Regular value */
+.sensor-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.sensor-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  direction: ltr;
+  text-align: right;
+}
+
+.sensor-unit {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  direction: ltr;
+}
+
+/* Thermometer visualization */
+.sensor-thermometer {
+  flex: 1;
+  height: 12px;
+  background: #1e293b;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  min-width: 120px;
+  margin-right: 1rem;
+  border: 1px solid var(--border);
+}
+
+.thermo-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #38bdf8, #f87171);
+  width: 50%;
+  transition: width 0.6s ease;
+}
+
+.thermo-markers {
+  position: absolute;
+  inset: 0;
+}
+
+.thermo-marker {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  border-radius: 1px;
+}
+
+.thermo-high {
+  background: var(--accent-red);
+}
+
+.thermo-low {
+  background: var(--accent-blue);
+}
+
+/* Range (daily hi/lo) */
+.sensor-range {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: auto;
+}
+
+.range-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  direction: ltr;
+  text-align: right;
+}
+
+.range-low {
+  color: var(--accent-blue);
+}
+
+.range-high {
+  color: var(--accent-red);
+}
+
+.range-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Records (monthly/yearly) */
+.sensor-records {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 0.5rem;
+}
+
+.record {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.record-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.record-range {
+  font-size: 0.8rem;
+  font-weight: 500;
+  direction: ltr;
+  text-align: right;
+}
+
+/* Humidity bar */
+.humidity-bar-container {
+  flex: 1;
+  height: 12px;
+  background: #1e293b;
+  border-radius: 6px;
+  overflow: hidden;
+  min-width: 120px;
+  margin-right: 1rem;
+  border: 1px solid var(--border);
+}
+
+.humidity-bar {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #22d3ee, #38bdf8);
+  width: 0%;
+  transition: width 0.6s ease;
+}
+
+/* Barometer Trend */
+.baro-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+  width: fit-content;
+}
+
+/* Wind Compass */
+.wind-compass-large {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.compass-ring-large {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  position: relative;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+}
+
+.cl {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.cl.n { top: 6px; left: 50%; transform: translateX(-50%); color: var(--accent-red); }
+.cl.s { bottom: 6px; left: 50%; transform: translateX(-50%); }
+.cl.e { right: 8px; top: 50%; transform: translateY(-50%); }
+.cl.w { left: 8px; top: 50%; transform: translateY(-50%); }
+
+.compass-needle-large {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 55px;
+  background: linear-gradient(to top, transparent 0%, var(--accent-red) 40%, var(--accent-red) 100%);
+  transform-origin: bottom center;
+  transform: translate(-50%, -100%) rotate(0deg);
+  border-radius: 2px;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.compass-needle-large::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-red);
+}
+
+.wind-direction-text {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  direction: ltr;
+}
+
+.wind-avg {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* Rain Section */
+.rain-hero {
+  text-align: center;
+  background: linear-gradient(135deg, #1a2d45 0%, #1e3550 100%);
+  border-color: rgba(56, 189, 248, 0.15);
+}
+
+.rain-total {
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+  color: var(--accent-blue);
+  direction: ltr;
+}
+
+.rain-total-unit {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.rain-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.rain-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rain-item-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  direction: ltr;
+}
+
+.rain-item-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Loading animation */
+.sensor-loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.sensor-loading::after {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.75rem;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Error state */
+.sensor-error {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  text-align: center;
+  color: var(--accent-red);
+  font-size: 0.9rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .sensor-card-hero {
+    grid-column: span 1;
+  }
+
+  .sensor-hero-value {
+    font-size: 2.5rem;
+  }
+
+  .sensor-hero-row {
+    flex-wrap: wrap;
+  }
+
+  .compass-ring-large {
+    width: 130px;
+    height: 130px;
+  }
+
+  .compass-needle-large {
+    height: 45px;
+  }
+
+  .rain-total {
+    font-size: 3rem;
+  }
+
+  .rain-breakdown {
+    gap: 1rem;
+  }
+
+  .station-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .header-nav {
+    order: -1;
+  }
+}

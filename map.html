@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מפת מזג אוויר - תחנה מטאורולוגית מעברות</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="map.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="station-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v10m0 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+              <path d="M8 2h8M8 6h8"/>
+            </svg>
+          </div>
+          <div>
+            <h1>מפת מזג אוויר</h1>
+            <p class="subtitle">Interactive Weather Map &bull; Windy.com</p>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <a href="/" class="nav-link">ראשי</a>
+          <a href="/sensors.html" class="nav-link">חיישנים</a>
+          <a href="/map.html" class="nav-link active">מפה</a>
+          <a href="/rain.html" class="nav-link">גשם</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main map-main">
+      <!-- Layer selector bar -->
+      <div class="map-toolbar">
+        <div class="toolbar-label">שכבה:</div>
+        <div class="layer-buttons">
+          <button class="layer-btn active" data-layer="wind">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+            </svg>
+            רוח
+          </button>
+          <button class="layer-btn" data-layer="rain">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+            גשם
+          </button>
+          <button class="layer-btn" data-layer="temp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+            </svg>
+            טמפרטורה
+          </button>
+          <button class="layer-btn" data-layer="clouds">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+            </svg>
+            עננות
+          </button>
+          <button class="layer-btn" data-layer="pressure">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+            לחץ
+          </button>
+          <button class="layer-btn" data-layer="gust">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M4 14h12M4 10h16M4 18h8"/>
+            </svg>
+            משבי רוח
+          </button>
+        </div>
+      </div>
+
+      <!-- Windy embed -->
+      <div class="map-container" id="mapContainer">
+        <iframe
+          id="windyFrame"
+          src="https://embed.windy.com/embed2.html?lat=32.37&lon=34.90&detailLat=32.37&detailLon=34.90&zoom=9&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+      </div>
+
+      <!-- Info bar below map -->
+      <div class="map-info">
+        <div class="map-info-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>מעברות &bull; 32.37°N, 34.90°E</span>
+        </div>
+        <div class="map-info-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+          <span>מודל: ECMWF &bull; עדכון כל 6 שעות</span>
+        </div>
+        <div class="map-info-item map-info-credit">
+          Powered by <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>תחנה מטאורולוגית מעברות &bull; Ma'abarot Meteorological Station</p>
+      <p class="footer-contact"><a href="mailto:uri_sh@maabarot.org.il">צור קשר</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // Layer switching
+    const BASE_URL = 'https://embed.windy.com/embed2.html?lat=32.37&lon=34.90&detailLat=32.37&detailLon=34.90&zoom=9&level=surface&product=ecmwf&menu=&message=true&marker=true&calendar=now&pressure=&type=map&location=coordinates&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1';
+
+    const buttons = document.querySelectorAll('.layer-btn');
+    const iframe = document.getElementById('windyFrame');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const layer = btn.dataset.layer;
+        iframe.src = BASE_URL + '&overlay=' + layer;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תחנה מטאורולוגית מעברות</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="station-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v10m0 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+              <path d="M8 2h8M8 6h8"/>
+            </svg>
+          </div>
+          <div>
+            <h1>תחנת מזג אוויר מעברות</h1>
+            <p class="subtitle">Ma'abarot Weather Station &bull; Davis Vantage Pro</p>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <a href="/" class="nav-link active">ראשי</a>
+          <a href="/sensors.html" class="nav-link">חיישנים</a>
+          <a href="/map.html" class="nav-link">מפה</a>
+          <a href="/rain.html" class="nav-link">גשם</a>
+        </nav>
+        <div class="header-meta">
+          <div class="last-update" id="lastUpdate">
+            <span class="pulse"></span>
+            <span id="updateTime">מתעדכן כל 2.5 דקות</span>
+          </div>
+          <div class="location-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>32.37°N, 34.90°E &bull; גובה 14 מ'</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Live Weather Widget - Netanya -->
+      <section class="weather-widget" id="weatherWidget">
+        <div class="widget-header">
+          <div class="widget-location">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+            </svg>
+            <div>
+              <h2>מזג אוויר נתניה</h2>
+              <span class="widget-subtitle">עכשיו</span>
+            </div>
+          </div>
+          <div class="widget-icon" id="widgetIcon"></div>
+        </div>
+        <div class="widget-body">
+          <div class="widget-main-temp">
+            <span class="widget-temp" id="wTemp">--</span>
+            <span class="widget-temp-unit">°C</span>
+          </div>
+          <div class="widget-details">
+            <div class="widget-detail">
+              <span class="widget-detail-label">מרגיש כמו</span>
+              <span class="widget-detail-value" id="wFeelsLike">--°C</span>
+            </div>
+            <div class="widget-detail">
+              <span class="widget-detail-label">לחות</span>
+              <span class="widget-detail-value" id="wHumidity">--%</span>
+            </div>
+            <div class="widget-detail">
+              <span class="widget-detail-label">רוח</span>
+              <span class="widget-detail-value" id="wWind">-- km/h</span>
+            </div>
+            <div class="widget-detail">
+              <span class="widget-detail-label">משקעים</span>
+              <span class="widget-detail-value" id="wPrecip">-- מ"מ</span>
+            </div>
+            <div class="widget-detail">
+              <span class="widget-detail-label">UV</span>
+              <span class="widget-detail-value" id="wUV">--</span>
+            </div>
+            <div class="widget-detail">
+              <span class="widget-detail-label">עננות</span>
+              <span class="widget-detail-value" id="wCloud">--%</span>
+            </div>
+          </div>
+        </div>
+        <div class="widget-forecast" id="widgetForecast"></div>
+      </section>
+
+      <!-- Hero: Current Conditions Gauges -->
+      <section class="gauge-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          ערכים נוכחיים
+        </h2>
+        <div class="gauge-category">
+          <div class="gauges-row gauges-row-5">
+            <div class="gauge-card">
+              <div class="gauge-label">טמפרטורה</div>
+              <img src="/station/OutsideTemp.gif" alt="טמפרטורה">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">לחות</div>
+              <img src="/station/OutsideHumidity.gif" alt="לחות">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">נקודת טל</div>
+              <img src="/station/DewPoint.gif" alt="נקודת טל">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">Wind Chill</div>
+              <img src="/station/WindChill.gif" alt="Wind Chill">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">עומס חום</div>
+              <img src="/station/HeatIndex.gif" alt="עומס חום">
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge-category">
+          <div class="gauges-row gauges-row-3">
+            <div class="gauge-card">
+              <div class="gauge-label">כיוון רוח</div>
+              <img src="/station/WindDirection.gif" alt="כיוון רוח">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">ברומטר</div>
+              <img src="/station/Barometer.gif" alt="ברומטר">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">מהירות רוח</div>
+              <img src="/station/WindSpeed.gif" alt="מהירות רוח">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rain Gauges -->
+      <section class="gauge-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+          נתוני גשם
+        </h2>
+        <div class="gauge-category">
+          <div class="gauges-row gauges-row-5">
+            <div class="gauge-card">
+              <div class="gauge-label">גשם היום</div>
+              <img src="/station/Rain.gif" alt="גשם היום">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">עוצמת גשם</div>
+              <img src="/station/RainRate.gif" alt="עוצמת גשם">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">פרק גשם</div>
+              <img src="/station/RainStorm.gif" alt="פרק גשם">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">גשם חודשי</div>
+              <img src="/station/MonthlyRain.gif" alt="גשם חודשי">
+            </div>
+            <div class="gauge-card">
+              <div class="gauge-label">גשם שנתי</div>
+              <img src="/station/YearlyRain.gif" alt="גשם שנתי">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Graphs -->
+      <section class="gauge-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          גרפים היסטוריים
+        </h2>
+        <div class="gauge-category">
+          <div class="gauges-row gauges-row-2">
+            <div class="gauge-card gauge-card-wide">
+              <div class="gauge-label">היסטוריית טמפרטורה</div>
+              <img src="/station/OutsideTempHistory.gif" alt="היסטוריית טמפרטורה">
+              <div class="graph-links">
+                <a href="/station/history/day/OutsideTempHistory.gif" target="_blank">יומי</a>
+                <a href="/station/history/week/OutsideTempHistory.gif" target="_blank">שבועי</a>
+                <a href="/station/history/month/OutsideTempHistory.gif" target="_blank">חודשי</a>
+              </div>
+            </div>
+            <div class="gauge-card gauge-card-wide">
+              <div class="gauge-label">היסטוריית ברומטר</div>
+              <img src="/station/BarometerHistory.gif" alt="היסטוריית ברומטר">
+              <div class="graph-links">
+                <a href="/station/BarometerHistory.gif" target="_blank">יומי</a>
+                <a href="/station/history/week/BarometerHistory.gif" target="_blank">שבועי</a>
+                <a href="/station/history/month/BarometerHistory.gif" target="_blank">חודשי</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="more-graphs">
+          <span class="more-graphs-label">גרפים נוספים:</span>
+          <div class="graph-links">
+            <a href="/station/OutsideHumidityHistory.gif" target="_blank">לחות</a>
+            <a href="/station/history/day/HeatIndexHistory.gif" target="_blank">עומס חום</a>
+            <a href="/station/WindSpeedHistory.gif" target="_blank">מהירות רוח</a>
+            <a href="/station/WindDirectionHistory.gif" target="_blank">כיוון רוח</a>
+            <a href="/station/RainHistory.gif" target="_blank">גשם יומי</a>
+            <a href="/station/RainRate.gif" target="_blank">עוצמת גשם</a>
+            <a href="/station/history/month/RainHistory.gif" target="_blank">גשם חודשי</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Links -->
+      <section class="links-section">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          קישורים
+        </h2>
+        <div class="links-grid">
+          <a href="http://62.128.42.5/weather/Monthly_Vantage_Pro.htm" target="_blank" class="link-card">
+            <span class="link-icon">📊</span>
+            <span>גרפים מהתחנה</span>
+          </a>
+          <a href="http://62.128.42.5/weather/Tag-List.htm" target="_blank" class="link-card">
+            <span class="link-icon">📋</span>
+            <span>כל נתוני התחנה</span>
+          </a>
+          <a href="https://ims.gov.il/he/Forecasts" target="_blank" class="link-card">
+            <span class="link-icon">🌤️</span>
+            <span>תחזית - שירות מטאורולוגי</span>
+          </a>
+          <a href="http://62.128.42.5/weather/links/rain1.htm" target="_blank" class="link-card">
+            <span class="link-icon">🌧️</span>
+            <span>תחזית גשם</span>
+          </a>
+          <a href="https://ims.gov.il/he/RadarSatellite" target="_blank" class="link-card">
+            <span class="link-icon">📡</span>
+            <span>מכ"ם גשם</span>
+          </a>
+          <a href="https://www.govmap.gov.il/?c=204000,595000&z=0&app=app12" target="_blank" class="link-card">
+            <span class="link-icon">🗺️</span>
+            <span>מכ"ם גשם על מפות</span>
+          </a>
+          <a href="http://62.128.42.5/weather/rain1.htm" target="_blank" class="link-card">
+            <span class="link-icon">📈</span>
+            <span>נתוני גשם מ-1940</span>
+          </a>
+          <a href="http://62.128.42.5/weather/noaa.htm" target="_blank" class="link-card">
+            <span class="link-icon">🗃️</span>
+            <span>ארכיון התחנה</span>
+          </a>
+          <a href="http://62.128.42.5/weather/location.htm" target="_blank" class="link-card">
+            <span class="link-icon">📍</span>
+            <span>על התחנה</span>
+          </a>
+          <a href="https://docs.google.com/spreadsheets/d/1AfOkRqGLd915bBpV6pRLnAKT2Ux3AXauxPaqLGBXlGE/edit#gid=474086499" target="_blank" class="link-card">
+            <span class="link-icon">📊</span>
+            <span>גרף גשם שנתי מצטבר</span>
+          </a>
+          <a href="http://62.128.42.5/weather/history/rain.files/image001.gif" target="_blank" class="link-card">
+            <span class="link-icon">📉</span>
+            <span>גרף גשם רב שנתי</span>
+          </a>
+          <a href="http://weather.maabarot.org.il/" target="_blank" class="link-card">
+            <span class="link-icon">🏠</span>
+            <span>האתר המקורי</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>תחנה מטאורולוגית מעברות &bull; Ma'abarot Meteorological Station</p>
+      <p class="footer-contact">
+        <a href="mailto:uri_sh@maabarot.org.il">צור קשר</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

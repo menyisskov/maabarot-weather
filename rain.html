@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>נתוני גשם היסטוריים - תחנה מטאורולוגית מעברות</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="rain.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-content">
+        <div class="header-title">
+          <div class="station-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v10m0 0a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+              <path d="M8 2h8M8 6h8"/>
+            </svg>
+          </div>
+          <div>
+            <h1>נתוני גשם היסטוריים</h1>
+            <p class="subtitle">Historical Rain Data &bull; Since 1945</p>
+          </div>
+        </div>
+        <nav class="header-nav">
+          <a href="/" class="nav-link">ראשי</a>
+          <a href="/sensors.html" class="nav-link">חיישנים</a>
+          <a href="/map.html" class="nav-link">מפה</a>
+          <a href="/rain.html" class="nav-link active">גשם</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main rain-main">
+      <!-- Summary cards -->
+      <div class="rain-summary" id="rainSummary">
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          </div>
+          <div class="summary-data">
+            <div class="summary-value" id="totalRecords">--</div>
+            <div class="summary-label">ימי גשם רשומים</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <div class="summary-data">
+            <div class="summary-value" id="totalSeasons">--</div>
+            <div class="summary-label">עונות</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+              <path d="M8 4l4 4H4z" fill="currentColor" stroke="none"/>
+              <rect x="4" y="8" width="16" height="12" rx="2"/>
+            </svg>
+          </div>
+          <div class="summary-data">
+            <div class="summary-value" id="maxRain">--</div>
+            <div class="summary-label">שיא גשם יומי (מ"מ)</div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="summary-data">
+            <div class="summary-value" id="dateRange">--</div>
+            <div class="summary-label">טווח שנים</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters bar -->
+      <div class="table-controls">
+        <div class="controls-right">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="חיפוש..." autocomplete="off">
+          </div>
+          <select id="seasonFilter" class="filter-select">
+            <option value="">כל העונות</option>
+          </select>
+          <select id="monthFilter" class="filter-select">
+            <option value="">כל החודשים</option>
+            <option value="1">ינואר</option>
+            <option value="2">פברואר</option>
+            <option value="3">מרץ</option>
+            <option value="4">אפריל</option>
+            <option value="5">מאי</option>
+            <option value="6">יוני</option>
+            <option value="7">יולי</option>
+            <option value="8">אוגוסט</option>
+            <option value="9">ספטמבר</option>
+            <option value="10">אוקטובר</option>
+            <option value="11">נובמבר</option>
+            <option value="12">דצמבר</option>
+          </select>
+        </div>
+        <div class="controls-left">
+          <span class="row-count" id="rowCount">--</span>
+          <button class="export-btn" id="exportBtn" title="ייצוא CSV">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Data table -->
+      <div class="table-wrapper" id="tableWrapper">
+        <div class="table-loading" id="tableLoading">
+          <div class="loading-spinner"></div>
+          <span>טוען נתונים...</span>
+        </div>
+        <table class="data-table" id="dataTable">
+          <thead>
+            <tr>
+              <th class="sortable" data-col="season">עונה <span class="sort-icon"></span></th>
+              <th class="sortable" data-col="year">שנה <span class="sort-icon"></span></th>
+              <th class="sortable" data-col="month">חודש <span class="sort-icon"></span></th>
+              <th class="sortable" data-col="day">יום <span class="sort-icon"></span></th>
+              <th class="sortable" data-col="rain">גשם (מ"מ) <span class="sort-icon"></span></th>
+              <th>תאריך</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination" id="pagination">
+        <button class="page-btn" id="prevPage" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <div class="page-info" id="pageInfo">--</div>
+        <button class="page-btn" id="nextPage" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <select id="pageSizeSelect" class="filter-select page-size-select">
+          <option value="50">50 שורות</option>
+          <option value="100" selected>100 שורות</option>
+          <option value="250">250 שורות</option>
+          <option value="500">500 שורות</option>
+        </select>
+      </div>
+
+      <!-- Last updated -->
+      <div class="data-source">
+        <span id="lastFetch">עדכון אחרון: --</span>
+        &bull;
+        <a href="https://docs.google.com/spreadsheets/d/1AfOkRqGLd915bBpV6pRLnAKT2Ux3AXauxPaqLGBXlGE/edit?gid=231285793#gid=231285793" target="_blank" rel="noopener">
+          פתח בגוגל שיטס
+        </a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>תחנה מטאורולוגית מעברות &bull; Ma'abarot Meteorological Station</p>
+      <p class="footer-contact"><a href="mailto:uri_sh@maabarot.org.il">צור קשר</a></p>
+    </footer>
+  </div>
+
+  <script src="rain.js"></script>
+</body>
+</html>
