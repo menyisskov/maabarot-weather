@@ -60,6 +60,227 @@
   font-weight: 500;
 }
 
+/* Statistics Panel */
+.stats-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.stats-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+.stats-title svg {
+  color: var(--accent-blue);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.stat-card-highlight {
+  background: rgba(56, 189, 248, 0.06);
+  border-color: rgba(56, 189, 248, 0.15);
+  grid-row: span 1;
+}
+
+.stat-main-value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent-blue);
+  line-height: 1;
+  direction: ltr;
+}
+
+.stat-main-unit {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.stat-main-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  direction: ltr;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+.stat-detail {
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  margin-top: 0.25rem;
+  font-weight: 600;
+  direction: ltr;
+}
+
+/* Monthly bar chart */
+.monthly-chart {
+  margin-bottom: 1.5rem;
+}
+
+.monthly-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.monthly-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  height: 140px;
+  padding: 0 0.25rem;
+}
+
+.month-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.month-bar-value {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+  font-variant-numeric: tabular-nums;
+  min-height: 14px;
+}
+
+.month-bar-track {
+  flex: 1;
+  width: 100%;
+  max-width: 40px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 3px 3px 0 0;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.month-bar-fill {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.5s ease;
+  min-height: 2px;
+}
+
+.month-bar-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+/* Top 10 days */
+.top-days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.top-day-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 4px;
+  transition: background var(--transition);
+  direction: ltr;
+}
+
+.top-day-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.top-day-rank {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--accent-blue);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.top-day-date {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  width: 85px;
+  flex-shrink: 0;
+}
+
+.top-day-season {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 65px;
+  flex-shrink: 0;
+}
+
+.top-day-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.top-day-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.top-day-value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-amber);
+  width: 70px;
+  text-align: right;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Table Controls */
 .table-controls {
   display: flex;
@@ -424,6 +645,35 @@
   }
 
   .rain-mini-bar {
+    display: none;
+  }
+
+  .stats-panel {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-main-value {
+    font-size: 1.6rem;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .monthly-bars {
+    height: 100px;
+    gap: 0.2rem;
+  }
+
+  .top-day-season {
+    display: none;
+  }
+
+  .top-day-bar-track {
     display: none;
   }
 }

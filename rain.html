@@ -85,6 +85,71 @@
         </div>
       </div>
 
+      <!-- Statistics Panel -->
+      <div class="stats-panel" id="statsPanel">
+        <h2 class="stats-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          סטטיסטיקות
+        </h2>
+
+        <div class="stats-grid">
+          <!-- Annual Average -->
+          <div class="stat-card stat-card-highlight">
+            <div class="stat-main-value" id="avgAnnual">--</div>
+            <div class="stat-main-unit">מ"מ</div>
+            <div class="stat-main-label">ממוצע גשם שנתי</div>
+          </div>
+
+          <!-- Avg per rainy day -->
+          <div class="stat-card">
+            <div class="stat-value" id="avgPerDay">--</div>
+            <div class="stat-label">מ"מ ממוצע ליום גשום</div>
+          </div>
+
+          <!-- Avg rainy days per season -->
+          <div class="stat-card">
+            <div class="stat-value" id="avgRainyDays">--</div>
+            <div class="stat-label">ימי גשם ממוצע לעונה</div>
+          </div>
+
+          <!-- Wettest season -->
+          <div class="stat-card">
+            <div class="stat-value" id="wettestSeason">--</div>
+            <div class="stat-label">העונה הגשומה ביותר</div>
+            <div class="stat-detail" id="wettestSeasonDetail"></div>
+          </div>
+
+          <!-- Driest season -->
+          <div class="stat-card">
+            <div class="stat-value" id="driestSeason">--</div>
+            <div class="stat-label">העונה היבשה ביותר</div>
+            <div class="stat-detail" id="driestSeasonDetail"></div>
+          </div>
+
+          <!-- Max single-day -->
+          <div class="stat-card">
+            <div class="stat-value" id="maxDayValue">--</div>
+            <div class="stat-label">שיא גשם יומי</div>
+            <div class="stat-detail" id="maxDayDetail"></div>
+          </div>
+        </div>
+
+        <!-- Monthly breakdown -->
+        <div class="monthly-chart">
+          <h3 class="monthly-title">ממוצע גשם חודשי (מ"מ)</h3>
+          <div class="monthly-bars" id="monthlyBars"></div>
+        </div>
+
+        <!-- Top 10 rainiest days -->
+        <div class="top-days">
+          <h3 class="monthly-title">10 ימי הגשם החזקים ביותר</h3>
+          <div class="top-days-list" id="topDaysList"></div>
+        </div>
+      </div>
+
       <!-- Filters bar -->
       <div class="table-controls">
         <div class="controls-right">

@@ -79,6 +79,125 @@ function updateSummary(rows) {
   document.getElementById('dateRange').textContent = `${minYear} – ${maxYear}`;
 }
 
+// ── Extended statistics ─────────────────────────────────
+
+function updateStatistics(rows) {
+  // --- Season totals ---
+  const seasonTotals = {};
+  const seasonDays = {};
+  for (const r of rows) {
+    seasonTotals[r.season] = (seasonTotals[r.season] || 0) + r.rain;
+    seasonDays[r.season] = (seasonDays[r.season] || 0) + 1;
+  }
+
+  const seasonEntries = Object.entries(seasonTotals);
+  // Exclude current (potentially incomplete) season
+  const sortedSeasons = [...new Set(rows.map(r => r.season))].sort();
+  const currentSeason = sortedSeasons[sortedSeasons.length - 1];
+  const completedSeasons = seasonEntries.filter(([s]) => s !== currentSeason);
+
+  // Average annual rainfall
+  if (completedSeasons.length > 0) {
+    const totalAllSeasons = completedSeasons.reduce((s, [, v]) => s + v, 0);
+    const avg = totalAllSeasons / completedSeasons.length;
+    document.getElementById('avgAnnual').textContent = avg.toFixed(1);
+  }
+
+  // Average rain per rainy day
+  const totalRain = rows.reduce((s, r) => s + r.rain, 0);
+  document.getElementById('avgPerDay').textContent = (totalRain / rows.length).toFixed(1);
+
+  // Average rainy days per season
+  const allSeasonDayValues = Object.values(seasonDays);
+  const avgDays = allSeasonDayValues.reduce((s, v) => s + v, 0) / allSeasonDayValues.length;
+  document.getElementById('avgRainyDays').textContent = avgDays.toFixed(0);
+
+  // Wettest season
+  if (completedSeasons.length > 0) {
+    const wettest = completedSeasons.reduce((a, b) => a[1] > b[1] ? a : b);
+    document.getElementById('wettestSeason').textContent = wettest[0];
+    document.getElementById('wettestSeasonDetail').textContent = `${wettest[1].toFixed(1)} מ"מ`;
+  }
+
+  // Driest season
+  if (completedSeasons.length > 0) {
+    const driest = completedSeasons.reduce((a, b) => a[1] < b[1] ? a : b);
+    document.getElementById('driestSeason').textContent = driest[0];
+    document.getElementById('driestSeasonDetail').textContent = `${driest[1].toFixed(1)} מ"מ`;
+  }
+
+  // Max single day
+  const maxRow = rows.reduce((a, b) => a.rain > b.rain ? a : b);
+  document.getElementById('maxDayValue').textContent = `${maxRow.rain.toFixed(1)} מ"מ`;
+  document.getElementById('maxDayDetail').textContent =
+    `${String(maxRow.day).padStart(2, '0')}/${String(maxRow.month).padStart(2, '0')}/${maxRow.year}`;
+
+  // --- Monthly average breakdown ---
+  const monthlyTotals = {};
+  const monthlyYears = {};
+  for (const r of rows) {
+    if (!monthlyTotals[r.month]) {
+      monthlyTotals[r.month] = 0;
+      monthlyYears[r.month] = new Set();
+    }
+    monthlyTotals[r.month] += r.rain;
+    monthlyYears[r.month].add(r.year);
+  }
+
+  const monthlyAvg = {};
+  let maxMonthAvg = 0;
+  for (let m = 1; m <= 12; m++) {
+    if (monthlyTotals[m] && monthlyYears[m]) {
+      monthlyAvg[m] = monthlyTotals[m] / monthlyYears[m].size;
+      maxMonthAvg = Math.max(maxMonthAvg, monthlyAvg[m]);
+    } else {
+      monthlyAvg[m] = 0;
+    }
+  }
+
+  const barsContainer = document.getElementById('monthlyBars');
+  // Rain season order: Oct, Nov, Dec, Jan, Feb, Mar, Apr, May (skip summer)
+  const rainMonths = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  let barsHtml = '';
+  for (const m of rainMonths) {
+    const avg = monthlyAvg[m] || 0;
+    const pct = maxMonthAvg > 0 ? (avg / maxMonthAvg) * 100 : 0;
+    const barColor = avg > 80 ? 'var(--accent-blue)' :
+                     avg > 30 ? 'var(--accent-cyan)' :
+                     avg > 0 ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255,255,255,0.05)';
+    barsHtml += `
+      <div class="month-bar-col">
+        <div class="month-bar-value">${avg > 0 ? avg.toFixed(0) : ''}</div>
+        <div class="month-bar-track">
+          <div class="month-bar-fill" style="height:${pct}%;background:${barColor}"></div>
+        </div>
+        <div class="month-bar-label">${MONTH_NAMES[m].slice(0, 3)}</div>
+      </div>`;
+  }
+  barsContainer.innerHTML = barsHtml;
+
+  // --- Top 10 rainiest days ---
+  const sorted = [...rows].sort((a, b) => b.rain - a.rain).slice(0, 10);
+  const topContainer = document.getElementById('topDaysList');
+  let topHtml = '';
+  for (let i = 0; i < sorted.length; i++) {
+    const r = sorted[i];
+    const dateStr = `${String(r.day).padStart(2, '0')}/${String(r.month).padStart(2, '0')}/${r.year}`;
+    const barPct = (r.rain / sorted[0].rain) * 100;
+    topHtml += `
+      <div class="top-day-row">
+        <span class="top-day-rank">${i + 1}</span>
+        <span class="top-day-date">${dateStr}</span>
+        <span class="top-day-season">${r.season}</span>
+        <div class="top-day-bar-track">
+          <div class="top-day-bar-fill" style="width:${barPct}%"></div>
+        </div>
+        <span class="top-day-value">${r.rain.toFixed(1)} מ"מ</span>
+      </div>`;
+  }
+  topContainer.innerHTML = topHtml;
+}
+
 // ── Season filter options ───────────────────────────────
 
 function populateSeasonFilter(rows) {
@@ -260,6 +379,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     filteredRows = [...allRows];
 
     updateSummary(allRows);
+    updateStatistics(allRows);
     populateSeasonFilter(allRows);
 
     // Default sort: newest first
