@@ -371,28 +371,93 @@ function exportCSV() {
 
 // ── Cumulative Rain Graph ────────────────────────────────
 
-function populateYearSelect(rows) {
-  const years = [...new Set(rows.map(r => r.year))].sort((a, b) => b - a);
-  const sel = document.getElementById('graphYearSelect');
-  for (const y of years) {
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    sel.appendChild(opt);
-  }
-  // Default to latest year
-  if (years.length > 0) sel.value = years[0];
+// Rain season runs Oct 1 → Sep 30.  "Day of season" = days since Oct 1.
+// Months in season order: Oct(10), Nov(11), Dec(12), Jan(1)…Sep(9)
+const SEASON_MONTHS = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const SEASON_MONTH_LABELS = ['אוק', 'נוב', 'דצמ', 'ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט'];
+
+function dayOfSeason(month, day) {
+  // Oct 1 = day 0.  We use a non-leap reference year for consistent spacing.
+  const ref = month >= 10 ? 2001 : 2002; // Oct-Dec in 2001, Jan-Sep in 2002
+  const d = new Date(ref, month - 1, day);
+  const oct1 = new Date(2001, 9, 1); // Oct 1 2001
+  return Math.floor((d - oct1) / 86400000);
 }
 
-function buildCumulativeGraph(rows, year) {
+const SEASON_DAYS = 365; // Oct 1 → Sep 30
+
+function populateSeasonSelect(rows) {
+  const seasons = [...new Set(rows.map(r => r.season))].sort((a, b) => b.localeCompare(a));
+  const sel = document.getElementById('graphSeasonSelect');
+  for (const s of seasons) {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  }
+  if (seasons.length > 0) sel.value = seasons[0];
+}
+
+// Build multi-year average cumulative curve (per day-of-season)
+function buildAverageCurve(rows) {
+  // Group rows by season, compute cumulative per season
+  const seasons = {};
+  for (const r of rows) {
+    if (!seasons[r.season]) seasons[r.season] = [];
+    seasons[r.season].push(r);
+  }
+
+  // For each completed season, build a map: dayOfSeason → cumulative
+  const allSeasonKeys = Object.keys(seasons).sort();
+  // Exclude the latest (potentially incomplete) season
+  const currentSeason = allSeasonKeys[allSeasonKeys.length - 1];
+  const completedKeys = allSeasonKeys.filter(s => s !== currentSeason);
+
+  if (completedKeys.length === 0) return [];
+
+  // For each day-of-season (0–364), accumulate totals across seasons
+  const daySums = new Float64Array(SEASON_DAYS);
+  const dayCounts = new Uint16Array(SEASON_DAYS);
+
+  for (const sKey of completedKeys) {
+    const sRows = seasons[sKey].sort((a, b) => dayOfSeason(a.month, a.day) - dayOfSeason(b.month, b.day));
+    let cum = 0;
+    let lastDos = -1;
+    for (const r of sRows) {
+      cum += r.rain;
+      const dos = dayOfSeason(r.month, r.day);
+      // Fill forward: for days between lastDos+1 and dos, carry the cumulative
+      for (let d = Math.max(0, lastDos + 1); d <= dos && d < SEASON_DAYS; d++) {
+        daySums[d] += cum;
+        dayCounts[d]++;
+      }
+      lastDos = dos;
+    }
+    // Fill to end of season with final cumulative
+    for (let d = lastDos + 1; d < SEASON_DAYS; d++) {
+      daySums[d] += cum;
+      dayCounts[d]++;
+    }
+  }
+
+  // Build average curve — only include points where we have data
+  const avgPoints = [];
+  for (let d = 0; d < SEASON_DAYS; d++) {
+    if (dayCounts[d] > 0) {
+      avgPoints.push({ dos: d, cumulative: daySums[d] / dayCounts[d] });
+    }
+  }
+  return avgPoints;
+}
+
+function buildCumulativeGraph(rows, season, avgCurve) {
   const canvas = document.getElementById('cumulativeCanvas');
   const wrapper = canvas.parentElement;
   const dpr = window.devicePixelRatio || 1;
 
-  // Size canvas to container
   const rect = wrapper.getBoundingClientRect();
   const width = rect.width;
-  const height = Math.min(350, Math.max(220, width * 0.4));
+  const height = Math.min(380, Math.max(240, width * 0.4));
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   canvas.style.width = width + 'px';
@@ -402,42 +467,44 @@ function buildCumulativeGraph(rows, year) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, width, height);
 
-  // Filter and sort data for the selected year
-  const yearRows = rows
-    .filter(r => r.year === Number(year))
-    .sort((a, b) => a.month - b.month || a.day - b.day);
+  // Filter and sort data for selected season
+  const seasonRows = rows
+    .filter(r => r.season === season)
+    .sort((a, b) => dayOfSeason(a.month, a.day) - dayOfSeason(b.month, b.day));
 
-  if (yearRows.length === 0) {
+  if (seasonRows.length === 0) {
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '14px Heebo, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('אין נתונים לשנה זו', width / 2, height / 2);
+    ctx.fillText('אין נתונים לעונה זו', width / 2, height / 2);
     return;
   }
 
-  // Build cumulative data with day-of-year as X
+  // Build cumulative points
   const points = [];
   let cumulative = 0;
-  for (const r of yearRows) {
+  for (const r of seasonRows) {
     cumulative += r.rain;
-    const doy = dayOfYear(r.year, r.month, r.day);
-    points.push({ doy, cumulative, rain: r.rain, month: r.month, day: r.day });
+    points.push({ dos: dayOfSeason(r.month, r.day), cumulative, rain: r.rain, month: r.month, day: r.day });
   }
 
   // Chart dimensions
-  const pad = { top: 30, right: 25, bottom: 45, left: 55 };
+  const pad = { top: 30, right: 30, bottom: 45, left: 55 };
   const chartW = width - pad.left - pad.right;
   const chartH = height - pad.top - pad.bottom;
 
-  const maxCum = points[points.length - 1].cumulative;
-  const yMax = Math.ceil(maxCum / 50) * 50 || 50;
-  const xMin = 1;
-  const xMax = 365;
+  // Y-max: fit both the season line and the average curve
+  const maxSeasonCum = points[points.length - 1].cumulative;
+  const maxAvgCum = avgCurve.length > 0 ? avgCurve[avgCurve.length - 1].cumulative : 0;
+  const yMax = Math.ceil(Math.max(maxSeasonCum, maxAvgCum) / 50) * 50 || 50;
 
-  function xPos(doy) { return pad.left + ((doy - xMin) / (xMax - xMin)) * chartW; }
+  const xMin = 0;
+  const xMax = SEASON_DAYS;
+
+  function xPos(dos) { return pad.left + ((dos - xMin) / (xMax - xMin)) * chartW; }
   function yPos(val) { return pad.top + chartH - (val / yMax) * chartH; }
 
-  // Gridlines
+  // Gridlines + Y-axis labels
   ctx.strokeStyle = 'rgba(255,255,255,0.06)';
   ctx.lineWidth = 1;
   const ySteps = 5;
@@ -449,31 +516,27 @@ function buildCumulativeGraph(rows, year) {
     ctx.lineTo(width - pad.right, y);
     ctx.stroke();
 
-    // Y-axis labels
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '11px Heebo, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(Math.round(val) + '', pad.left - 8, y + 4);
   }
 
-  // Month labels on X-axis
-  const monthLabels = ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ'];
+  // Month labels on X-axis (season order)
   ctx.fillStyle = 'rgba(255,255,255,0.4)';
   ctx.font = '10px Heebo, sans-serif';
   ctx.textAlign = 'center';
-  for (let m = 0; m < 12; m++) {
-    // First day of each month
-    const doy = dayOfYear(Number(year), m + 1, 1);
-    const x = xPos(doy);
+  for (let i = 0; i < SEASON_MONTHS.length; i++) {
+    const m = SEASON_MONTHS[i];
+    const dos = dayOfSeason(m, 1);
+    const x = xPos(dos);
     if (x >= pad.left && x <= width - pad.right) {
-      // Vertical month line
       ctx.strokeStyle = 'rgba(255,255,255,0.04)';
       ctx.beginPath();
       ctx.moveTo(x, pad.top);
       ctx.lineTo(x, pad.top + chartH);
       ctx.stroke();
-
-      ctx.fillText(monthLabels[m], x + 12, pad.top + chartH + 16);
+      ctx.fillText(SEASON_MONTH_LABELS[i], x + 12, pad.top + chartH + 16);
     }
   }
 
@@ -487,13 +550,48 @@ function buildCumulativeGraph(rows, year) {
   ctx.fillText('מ"מ מצטבר', 0, 0);
   ctx.restore();
 
-  // Area fill under line
-  ctx.beginPath();
-  ctx.moveTo(xPos(points[0].doy), yPos(0));
-  for (const p of points) {
-    ctx.lineTo(xPos(p.doy), yPos(p.cumulative));
+  // ── Average curve (dashed, drawn first so season line is on top) ──
+  if (avgCurve.length > 1) {
+    // Area fill
+    ctx.beginPath();
+    ctx.moveTo(xPos(avgCurve[0].dos), yPos(0));
+    for (const p of avgCurve) ctx.lineTo(xPos(p.dos), yPos(p.cumulative));
+    ctx.lineTo(xPos(avgCurve[avgCurve.length - 1].dos), yPos(0));
+    ctx.closePath();
+    const avgGrad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+    avgGrad.addColorStop(0, 'rgba(251, 191, 36, 0.08)');
+    avgGrad.addColorStop(1, 'rgba(251, 191, 36, 0.01)');
+    ctx.fillStyle = avgGrad;
+    ctx.fill();
+
+    // Dashed line
+    ctx.beginPath();
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    for (let i = 0; i < avgCurve.length; i++) {
+      const x = xPos(avgCurve[i].dos);
+      const y = yPos(avgCurve[i].cumulative);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Average total label
+    const lastAvg = avgCurve[avgCurve.length - 1];
+    ctx.fillStyle = 'rgba(251, 191, 36, 0.8)';
+    ctx.font = '11px Heebo, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('ממוצע ' + lastAvg.cumulative.toFixed(0) + ' מ"מ', xPos(lastAvg.dos) + 4, yPos(lastAvg.cumulative) + 14);
   }
-  ctx.lineTo(xPos(points[points.length - 1].doy), yPos(0));
+
+  // ── Season area fill ──
+  ctx.beginPath();
+  ctx.moveTo(xPos(points[0].dos), yPos(0));
+  for (const p of points) ctx.lineTo(xPos(p.dos), yPos(p.cumulative));
+  ctx.lineTo(xPos(points[points.length - 1].dos), yPos(0));
   ctx.closePath();
   const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
   grad.addColorStop(0, 'rgba(56, 189, 248, 0.2)');
@@ -501,45 +599,37 @@ function buildCumulativeGraph(rows, year) {
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // Line
+  // ── Season line ──
   ctx.beginPath();
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
   ctx.lineWidth = 2;
   ctx.lineJoin = 'round';
   for (let i = 0; i < points.length; i++) {
-    const x = xPos(points[i].doy);
+    const x = xPos(points[i].dos);
     const y = yPos(points[i].cumulative);
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
   ctx.stroke();
 
-  // Data points (only if not too many)
+  // Data points
   if (points.length <= 80) {
     for (const p of points) {
-      const x = xPos(p.doy);
-      const y = yPos(p.cumulative);
       ctx.beginPath();
-      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+      ctx.arc(xPos(p.dos), yPos(p.cumulative), 2.5, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(56, 189, 248, 1)';
       ctx.fill();
     }
   }
 
-  // Total label at end
+  // Season total label
   const lastP = points[points.length - 1];
   ctx.fillStyle = 'rgba(56, 189, 248, 1)';
   ctx.font = 'bold 12px Heebo, sans-serif';
   ctx.textAlign = 'left';
-  const totalX = xPos(lastP.doy) + 6;
+  const totalX = xPos(lastP.dos) + 6;
   const totalY = yPos(lastP.cumulative) - 6;
-  ctx.fillText(lastP.cumulative.toFixed(1) + ' מ"מ', totalX > width - 80 ? xPos(lastP.doy) - 70 : totalX, totalY < pad.top + 15 ? totalY + 20 : totalY);
-}
-
-function dayOfYear(year, month, day) {
-  const d = new Date(year, month - 1, day);
-  const start = new Date(year, 0, 1);
-  return Math.floor((d - start) / 86400000) + 1;
+  ctx.fillText(lastP.cumulative.toFixed(1) + ' מ"מ', totalX > width - 80 ? xPos(lastP.dos) - 70 : totalX, totalY < pad.top + 15 ? totalY + 20 : totalY);
 }
 
 // ── Init ────────────────────────────────────────────────
@@ -554,22 +644,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateSummary(allRows);
     updateStatistics(allRows);
     populateSeasonFilter(allRows);
-    populateYearSelect(allRows);
+    populateSeasonSelect(allRows);
 
-    // Build graph for default year
-    const graphYearSel = document.getElementById('graphYearSelect');
-    if (graphYearSel.value) {
-      buildCumulativeGraph(allRows, graphYearSel.value);
+    // Build average curve once, reuse for all season graphs
+    const avgCurve = buildAverageCurve(allRows);
+
+    // Build graph for default season
+    const graphSeasonSel = document.getElementById('graphSeasonSelect');
+    if (graphSeasonSel.value) {
+      buildCumulativeGraph(allRows, graphSeasonSel.value, avgCurve);
     }
-    graphYearSel.addEventListener('change', () => {
-      buildCumulativeGraph(allRows, graphYearSel.value);
+    graphSeasonSel.addEventListener('change', () => {
+      buildCumulativeGraph(allRows, graphSeasonSel.value, avgCurve);
     });
     // Redraw on resize
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        if (graphYearSel.value) buildCumulativeGraph(allRows, graphYearSel.value);
+        if (graphSeasonSel.value) buildCumulativeGraph(allRows, graphSeasonSel.value, avgCurve);
       }, 200);
     });
 

@@ -302,6 +302,31 @@
   margin-bottom: 0;
 }
 
+.graph-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.graph-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.legend-line {
+  display: inline-block;
+  width: 20px;
+  height: 0;
+  border-top: 2px solid rgba(56, 189, 248, 0.9);
+}
+
+.legend-line-dashed {
+  border-top: 2px dashed rgba(251, 191, 36, 0.6);
+}
+
 .graph-canvas-wrapper {
   width: 100%;
   position: relative;
