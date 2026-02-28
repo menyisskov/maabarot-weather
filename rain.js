@@ -369,6 +369,179 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
+// ── Cumulative Rain Graph ────────────────────────────────
+
+function populateYearSelect(rows) {
+  const years = [...new Set(rows.map(r => r.year))].sort((a, b) => b - a);
+  const sel = document.getElementById('graphYearSelect');
+  for (const y of years) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    sel.appendChild(opt);
+  }
+  // Default to latest year
+  if (years.length > 0) sel.value = years[0];
+}
+
+function buildCumulativeGraph(rows, year) {
+  const canvas = document.getElementById('cumulativeCanvas');
+  const wrapper = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+
+  // Size canvas to container
+  const rect = wrapper.getBoundingClientRect();
+  const width = rect.width;
+  const height = Math.min(350, Math.max(220, width * 0.4));
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  // Filter and sort data for the selected year
+  const yearRows = rows
+    .filter(r => r.year === Number(year))
+    .sort((a, b) => a.month - b.month || a.day - b.day);
+
+  if (yearRows.length === 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '14px Heebo, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('אין נתונים לשנה זו', width / 2, height / 2);
+    return;
+  }
+
+  // Build cumulative data with day-of-year as X
+  const points = [];
+  let cumulative = 0;
+  for (const r of yearRows) {
+    cumulative += r.rain;
+    const doy = dayOfYear(r.year, r.month, r.day);
+    points.push({ doy, cumulative, rain: r.rain, month: r.month, day: r.day });
+  }
+
+  // Chart dimensions
+  const pad = { top: 30, right: 25, bottom: 45, left: 55 };
+  const chartW = width - pad.left - pad.right;
+  const chartH = height - pad.top - pad.bottom;
+
+  const maxCum = points[points.length - 1].cumulative;
+  const yMax = Math.ceil(maxCum / 50) * 50 || 50;
+  const xMin = 1;
+  const xMax = 365;
+
+  function xPos(doy) { return pad.left + ((doy - xMin) / (xMax - xMin)) * chartW; }
+  function yPos(val) { return pad.top + chartH - (val / yMax) * chartH; }
+
+  // Gridlines
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  const ySteps = 5;
+  for (let i = 0; i <= ySteps; i++) {
+    const val = (yMax / ySteps) * i;
+    const y = yPos(val);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(width - pad.right, y);
+    ctx.stroke();
+
+    // Y-axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '11px Heebo, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(val) + '', pad.left - 8, y + 4);
+  }
+
+  // Month labels on X-axis
+  const monthLabels = ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ'];
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '10px Heebo, sans-serif';
+  ctx.textAlign = 'center';
+  for (let m = 0; m < 12; m++) {
+    // First day of each month
+    const doy = dayOfYear(Number(year), m + 1, 1);
+    const x = xPos(doy);
+    if (x >= pad.left && x <= width - pad.right) {
+      // Vertical month line
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + chartH);
+      ctx.stroke();
+
+      ctx.fillText(monthLabels[m], x + 12, pad.top + chartH + 16);
+    }
+  }
+
+  // Y-axis title
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '11px Heebo, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.translate(14, pad.top + chartH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('מ"מ מצטבר', 0, 0);
+  ctx.restore();
+
+  // Area fill under line
+  ctx.beginPath();
+  ctx.moveTo(xPos(points[0].doy), yPos(0));
+  for (const p of points) {
+    ctx.lineTo(xPos(p.doy), yPos(p.cumulative));
+  }
+  ctx.lineTo(xPos(points[points.length - 1].doy), yPos(0));
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+  grad.addColorStop(0, 'rgba(56, 189, 248, 0.2)');
+  grad.addColorStop(1, 'rgba(56, 189, 248, 0.02)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.9)';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  for (let i = 0; i < points.length; i++) {
+    const x = xPos(points[i].doy);
+    const y = yPos(points[i].cumulative);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Data points (only if not too many)
+  if (points.length <= 80) {
+    for (const p of points) {
+      const x = xPos(p.doy);
+      const y = yPos(p.cumulative);
+      ctx.beginPath();
+      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(56, 189, 248, 1)';
+      ctx.fill();
+    }
+  }
+
+  // Total label at end
+  const lastP = points[points.length - 1];
+  ctx.fillStyle = 'rgba(56, 189, 248, 1)';
+  ctx.font = 'bold 12px Heebo, sans-serif';
+  ctx.textAlign = 'left';
+  const totalX = xPos(lastP.doy) + 6;
+  const totalY = yPos(lastP.cumulative) - 6;
+  ctx.fillText(lastP.cumulative.toFixed(1) + ' מ"מ', totalX > width - 80 ? xPos(lastP.doy) - 70 : totalX, totalY < pad.top + 15 ? totalY + 20 : totalY);
+}
+
+function dayOfYear(year, month, day) {
+  const d = new Date(year, month - 1, day);
+  const start = new Date(year, 0, 1);
+  return Math.floor((d - start) / 86400000) + 1;
+}
+
 // ── Init ────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -381,6 +554,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateSummary(allRows);
     updateStatistics(allRows);
     populateSeasonFilter(allRows);
+    populateYearSelect(allRows);
+
+    // Build graph for default year
+    const graphYearSel = document.getElementById('graphYearSelect');
+    if (graphYearSel.value) {
+      buildCumulativeGraph(allRows, graphYearSel.value);
+    }
+    graphYearSel.addEventListener('change', () => {
+      buildCumulativeGraph(allRows, graphYearSel.value);
+    });
+    // Redraw on resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (graphYearSel.value) buildCumulativeGraph(allRows, graphYearSel.value);
+      }, 200);
+    });
 
     // Default sort: newest first
     applySorting();
