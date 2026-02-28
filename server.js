@@ -6,6 +6,20 @@ import { fileURLToPath } from 'node:url';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const PORT = process.env.PORT || 3000;
 
+// In-memory cache for proxied images (avoids slow round-trips to upstream station)
+const imageCache = new Map();
+const IMAGE_CACHE_TTL = 120_000; // 2 minutes
+
+// All gauge images shown on the main page — prefetched at startup
+const PREFETCH_IMAGES = [
+  'OutsideTemp.gif', 'OutsideHumidity.gif', 'DewPoint.gif',
+  'WindChill.gif', 'HeatIndex.gif', 'WindDirection.gif',
+  'Barometer.gif', 'WindSpeed.gif',
+  'Rain.gif', 'RainRate.gif', 'RainStorm.gif',
+  'MonthlyRain.gif', 'YearlyRain.gif',
+  'OutsideTempHistory.gif', 'BarometerHistory.gif',
+];
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -61,23 +75,36 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Proxy for station images (gauges + history graphs)
+  // Proxy for station images (gauges + history graphs) — with in-memory cache
   if (url.pathname.startsWith('/station/')) {
     try {
       const imagePath = url.pathname.replace('/station/', '');
-      const targetUrl = `http://weather.maabarot.org.il/${imagePath}`;
-      const response = await fetch(targetUrl);
-      const buffer = await response.arrayBuffer();
-
       const ext = extname(imagePath);
       const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+      const cached = imageCache.get(imagePath);
+      if (cached && Date.now() - cached.ts < IMAGE_CACHE_TTL) {
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=120',
+        });
+        res.end(cached.buffer);
+        return;
+      }
+
+      const targetUrl = `http://weather.maabarot.org.il/${imagePath}`;
+      const response = await fetch(targetUrl);
+      const buffer = Buffer.from(await response.arrayBuffer());
+
+      imageCache.set(imagePath, { buffer, ts: Date.now() });
 
       res.writeHead(200, {
         'Content-Type': contentType,
         'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'public, max-age=30',
+        'Cache-Control': 'public, max-age=120',
       });
-      res.end(Buffer.from(buffer));
+      res.end(buffer);
     } catch (err) {
       res.writeHead(502);
       res.end('Proxy error');
@@ -102,7 +129,23 @@ const server = createServer(async (req, res) => {
   }
 });
 
+// Prefetch gauge images into cache so the first visitor gets instant responses
+async function prefetchImages() {
+  console.log(`  Prefetching ${PREFETCH_IMAGES.length} gauge images...`);
+  const results = await Promise.allSettled(
+    PREFETCH_IMAGES.map(async (imagePath) => {
+      const targetUrl = `http://weather.maabarot.org.il/${imagePath}`;
+      const response = await fetch(targetUrl);
+      const buffer = Buffer.from(await response.arrayBuffer());
+      imageCache.set(imagePath, { buffer, ts: Date.now() });
+    })
+  );
+  const ok = results.filter(r => r.status === 'fulfilled').length;
+  console.log(`  Prefetched ${ok}/${PREFETCH_IMAGES.length} images.\n`);
+}
+
 server.listen(PORT, () => {
   console.log(`\n  Weather Dashboard running at:\n`);
   console.log(`  > Local:   http://localhost:${PORT}/\n`);
+  prefetchImages();
 });
